@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>Enviament de fitxer</title>
+</head>
+<body>
+  <h2>📤 Pujar fitxer</h2>
+  <input type="file" id="fileInput">
+  <button id="uploadBtn">Enviar</button>
+  <div id="resultat"></div>
+
+  <script>
+    document.getElementById('uploadBtn').addEventListener('click', async () => {
+      const input = document.getElementById('fileInput');
+      const resultat = document.getElementById('resultat');
+
+      if (!input.files.length) {
+        resultat.innerHTML = '⚠️ Error: No s\'ha seleccionat cap fitxer.';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('fitxer', input.files[0]);
+
+      try {
+        const resposta = await fetch('upload.php', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!resposta.ok) {
+          throw new Error(`Error del servidor: ${resposta.status}`);
+        }
+
+        const dades = await resposta.json();
+
+        resultat.innerHTML = `
+          ✅ Fitxer rebut correctament:<br>
+          📄 Nom: ${dades.nom}<br>
+          📦 Mida: ${dades.mida} bytes<br>
+          🧾 Tipus MIME: ${dades.mime}
+        `;
+      } catch (error) {
+        resultat.innerHTML = `❌ Error en l'enviament: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
